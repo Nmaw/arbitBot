@@ -1,0 +1,1 @@
+Do not delete this folder. Folder was created for SQLite database.
