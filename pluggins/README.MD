@@ -1,0 +1,1 @@
+Folder for pluggins with new functionality
