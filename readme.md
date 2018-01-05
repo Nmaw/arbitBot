@@ -22,3 +22,6 @@ List support currency:
 1. USD
 2. BTC
 3. LTC
+
+
+#TODO Download availabel pairs from exchanges
