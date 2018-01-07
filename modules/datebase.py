@@ -5,6 +5,8 @@
 
 import sqlite3
 
+import sys
+
 
 class SQLite:
 
@@ -16,23 +18,35 @@ class SQLite:
 
     @staticmethod
     def create_db(exchange, logger):
-        dbfile = 'data//'.__add__(exchange.__add__('.sqlite'))
+        dbfile = 'data/'.__add__(exchange.__add__('.sqlite'))
         conn = sqlite3.connect(dbfile)
-        logger.info('Database data/{}.sqlite was created with connect {}'.format(dbfile, conn))
+        logger.info('Database {} was created with connect {}'.format(dbfile, conn))
         conn.close()
 
-    def create_table(self, conn, cursor, pair):
+    def create_table(self, conn, cursor, name, logger):
         """
-        :param conn: Connections to database
-        :param cursor: Cursor for database
-        :param pair: Pair crypto values
+        :param conn: Connection to database
+        :param logger: Logging for debug
+        :param cursor: Cursor to database
+        :param name: Name of table
         """
-        pass
+        print(conn, cursor, [(name,),])
+        try:
+            cursor.execute('CREATE TABLE IF NOT EXISTS ? (x INTEGER, y, z, PRIMARY KEY(x ASC));', [(name,),])
+            #cursor.execute('CREATE TABLE IF NOT EXISTS btcusd (x INTEGER, y, z, PRIMARY KEY(x ASC));')
+        except sqlite3.DatabaseError as err:
+            logger.error('Error create table: {}'.format(err))
+            sys.exit()
+        else:
+            conn.commit()
+        logger.info('Create table {} for connection {}'.format(name, conn))
 
     @staticmethod
-    def connect(db):
-        conn = sqlite3.connect(db.__add__('.sqlite'))
+    def connect(exchange, logger):
+        dbfile = 'data/'.__add__(exchange.__add__('.sqlite'))
+        conn = sqlite3.connect(dbfile)
         cursor = conn.cursor()
+        logger.info('Connected {} to database {} with cursor {}'.format(conn, dbfile, cursor))
         return conn, cursor
 
     @staticmethod
