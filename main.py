@@ -89,6 +89,7 @@ def main():
                 for tablename in symbols:
                     database.create_table(conn, cursor, tablename, logger)
                     # TODO Создаем таблицу symbols_details и задаем ее структуру, после этого отправялемся все создавать иначе ни как
+
                 # print(symbols)
                 # print(symbols_details)
 
