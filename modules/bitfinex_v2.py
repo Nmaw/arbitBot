@@ -37,7 +37,7 @@ class APIPath:
 
     # - Uses currency ('USD, etc)
     FUNDING_BOOK = API_ROOT.format('lendbook/{}')
-    ORDER_BOOK = API_ROOT.format('orderbook/{}')
+    ORDER_BOOK = API_ROOT.format('book/{}')
     LENDS = API_ROOT.format('lends/{}')
 
     # -- Authenticated endpoints. http://docs.bitfinex.com/v1/reference#rest-auth-account-info
@@ -105,8 +105,7 @@ class RESTClient:
             self.keys = True
         else:
             self.keys = False
-            logger.warning('The API keys was not provided. The authenticated API methdos wont'
-                           ' be available')
+            logger.warning('The API keys was not provided. The authenticated API methdos wont be available')
 
     def __del__(self):
         if not self._session.closed:
@@ -156,15 +155,14 @@ class RESTClient:
         payload = payload or {}
         payload_encoded, headers = self._prepare_post(url, payload)
 
-        logger.debug(f'Sending post request to {url}')
+        logger.debug('Sending post request to {}'.format(url))
         with async_timeout.timeout(20):
             async with self._session.post(url, data=payload_encoded, headers=headers) as resp:
                 if 200 <= resp.status < 300:
                     return await resp.json()
                 else:
                     print(resp.text())
-                    raise aiohttp.errors.HttpProcessingError(
-                        message=f'There was a problem processing {url}', code=resp.status)
+                    logger.warning('There was a problem processing {}, with status {}'.format(url, resp.status))
 
     async def _fetch(self, url: str) -> any:
         """
@@ -173,15 +171,14 @@ class RESTClient:
         :url: the api url
         :return: The Bitfinex API response
         """
-        logger.debug(f'Fetching {url}')
+        logger.debug('Fetching {}'.format(url))
         with async_timeout.timeout(15):
             async with self._session.get(url) as resp:
                 if 200 <= resp.status < 300:
                     return await resp.json()
                 else:
                     print(resp.text())
-                    raise aiohttp.errors.HttpProcessingError(
-                        message=f'There was a problem processing {url}', code=response.status)
+                    logger.warning('There was a problem processing {}, with status {}'.format(url, resp.status))
 
     async def ticker(self, symbol: str) -> dict:
         """
@@ -245,7 +242,7 @@ class RESTClient:
 
     async def symbols_details(self) -> List[dict]:
         """Gets a detailed list with the available symbols on the exchange"""
-        return await self._fetch(APIPath.SYMBOLS)
+        return await self._fetch(APIPath.SYMBOLS_DETAILS)
 
     # Authenticated methods
     async def account_info(self) -> List[dict]:

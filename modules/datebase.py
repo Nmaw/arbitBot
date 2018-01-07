@@ -14,13 +14,19 @@ class SQLite:
     def __del__(self):
         pass
 
-    def _create_db(self, exchange, logger):
+    @staticmethod
+    def create_db(exchange, logger):
         dbfile = 'data//'.__add__(exchange.__add__('.sqlite'))
         conn = sqlite3.connect(dbfile)
-        logger.info('Create DB')
+        logger.info('Database data/{}.sqlite was created with connect {}'.format(dbfile, conn))
         conn.close()
 
     def create_table(self, conn, cursor, pair):
+        """
+        :param conn: Connections to database
+        :param cursor: Cursor for database
+        :param pair: Pair crypto values
+        """
         pass
 
     @staticmethod
