@@ -6,47 +6,55 @@
 import sqlite3
 
 
-def create_db(exchange):
-    dbfile = 'data//'.__add__(exchange.__add__('.sqlite'))
-    conn = sqlite3.connect(dbfile)
-    conn.close()
+class SQLite:
 
+    def __init__(self):
+        pass
 
-def create_table(conn, cursor, pair):
-    pass
+    def __del__(self):
+        pass
 
+    def _create_db(self, exchange, logger):
+        dbfile = 'data//'.__add__(exchange.__add__('.sqlite'))
+        conn = sqlite3.connect(dbfile)
+        logger.info('Create DB')
+        conn.close()
 
-def connect(db):
-    conn = sqlite3.connect(db.__add__('.sqlite'))
-    cursor = conn.cursor()
-    return conn, cursor
+    def create_table(self, conn, cursor, pair):
+        pass
 
+    @staticmethod
+    def connect(db):
+        conn = sqlite3.connect(db.__add__('.sqlite'))
+        cursor = conn.cursor()
+        return conn, cursor
 
-def close(conn):
-    conn.close()
+    @staticmethod
+    def close(conn):
+        conn.close()
 
+    @staticmethod
+    def read(cursor, pair, data):
+        print('Read data from DB:', cursor, pair, data)
+        cursor.execute("SELECT Name FROM Artist ORDER BY Name LIMIT 3")
+        result = cursor.fetchall()
+        return result
 
-def read(cursor, pair, data):
-    print('Read data from DB:', cursor, pair, data)
-    cursor.execute("SELECT Name FROM Artist ORDER BY Name LIMIT 3")
-    result = cursor.fetchall()
-    return result
-
-
-def write(conn, cursor, pair, data):
-    print('Write date to DB:', cursor, pair, data)
+    @staticmethod
+    def write(conn, cursor, pair, data):
+        print('Write date to DB:', cursor, pair, data)
 
     # Обратите внимание, даже передавая одно значение - его нужно передавать кортежем!
     # Именно по этому тут используется запятая в скобках!
-    new_artists = [
-        ('A Aagrh!',),
-        ('A Aagrh!-2',),
-        ('A Aagrh!-3',),
-    ]
+        new_artists = [
+            ('A Aagrh!',),
+            ('A Aagrh!-2',),
+            ('A Aagrh!-3',),
+        ]
 
-    try:
-        cursor.executemany("insert into Artist values (Null, ?);", new_artists)
-    except sqlite3.DatabaseError as err:
-        print("Error: ", err)
-    else:
-        conn.commit()
+        try:
+            cursor.executemany("insert into Artist values (Null, ?);", new_artists)
+        except sqlite3.DatabaseError as err:
+            print("Error: ", err)
+        else:
+            conn.commit()
