@@ -32,7 +32,7 @@ class SQLite:
         """
         print(conn, cursor, [(name,),])
         try:
-            cursor.execute('CREATE TABLE IF NOT EXISTS ? (x INTEGER, y, z, PRIMARY KEY(x ASC));', [(name,),])
+            cursor.execute('CREATE TABLE IF NOT EXISTS symbols (x INTEGER, y, z, PRIMARY KEY(x ASC));')
             #cursor.execute('CREATE TABLE IF NOT EXISTS btcusd (x INTEGER, y, z, PRIMARY KEY(x ASC));')
         except sqlite3.DatabaseError as err:
             logger.error('Error create table: {}'.format(err))

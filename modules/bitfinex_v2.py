@@ -10,7 +10,7 @@ import aiohttp
 
 from typing import Optional, List, Tuple
 
-# author Julioocz/aiobitfinex
+# @author Julioocz/aiobitfinex with modification @Nmaw
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('bitfinex.rest')
