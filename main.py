@@ -12,7 +12,6 @@ from modules.bitfinex_v2 import RESTClient
 
 
 def main():
-    # TODO Logging all activity
     global collect_symbols
 
     # Load Config File
@@ -26,7 +25,7 @@ def main():
         sys.exit()
 
     # Create Logger
-    # TODO split to external modules
+    # TODO Split to external modules
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     # Create console handler and set level to debug
@@ -88,8 +87,10 @@ def main():
 
                 database.insert(conn, cursor, 'symbols_details', symbols_details, logger)
 
-                # print(symbols)
-                # print(symbols_details)
+                # logger.debug(symbols)
+                logger.debug(symbols_details)
+
+            #TODO Add tickers
 
         async def collect_fundingbook(loop):
             bitfinex = RESTClient(loop)
