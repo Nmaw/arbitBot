@@ -72,7 +72,7 @@ def main():
     i = 0
     conn = None
 
-    while i < 5:
+    while i < 1:
         loop = asyncio.get_event_loop()
         exch = RESTClient(loop)
 
@@ -83,15 +83,13 @@ def main():
                 conn, cursor = database.connect(dbname, logger)
 
             async def collect_symbols(loop):
-                symbols = await exch.symbols()
+                # symbols = await exch.symbols()
                 symbols_details = await exch.symbols_details()
 
-                for tablename in symbols:
-                    database.create_table(conn, cursor, tablename, logger)
-                    # TODO Создаем таблицу symbols_details и задаем ее структуру, после этого отправялемся все создавать иначе ни как
+                database.insert(conn, cursor, 'symbols_details', symbols_details, logger)
 
                 # print(symbols)
-                print(symbols_details)
+                # print(symbols_details)
 
         async def collect_fundingbook(loop):
             bitfinex = RESTClient(loop)

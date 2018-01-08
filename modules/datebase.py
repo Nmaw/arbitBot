@@ -20,26 +20,19 @@ class SQLite:
     def create_db(exchange, logger):
         dbfile = 'data/'.__add__(exchange.__add__('.sqlite'))
         conn = sqlite3.connect(dbfile)
-        logger.info('Database {} was created with connect {}'.format(dbfile, conn))
-        conn.close()
+        cursor = conn.cursor()
+        logger.info('Database {} was created with connect {} and cursor {}'.format(dbfile, conn, cursor))
 
-    def create_table(self, conn, cursor, name, logger):
-        """
-        :param conn: Connection to database
-        :param logger: Logging for debug
-        :param cursor: Cursor to database
-        :param name: Name of table
-        """
-        print(conn, cursor, [(name,),])
         try:
-            cursor.execute('CREATE TABLE IF NOT EXISTS symbols (x INTEGER, y, z, PRIMARY KEY(x ASC));')
-            #cursor.execute('CREATE TABLE IF NOT EXISTS btcusd (x INTEGER, y, z, PRIMARY KEY(x ASC));')
+            cursor.execute('CREATE TABLE IF NOT EXISTS symbols_details (pair text, price_precision real, initial_margin real, minimum_margin real, maximum_order_size real, minimum_order_size real, expiration text, PRIMARY KEY(pair ASC));')
+
         except sqlite3.DatabaseError as err:
-            logger.error('Error create table: {}'.format(err))
+            logger.error('Error: {} create tables in database: {} '.format(err, dbfile))
             sys.exit()
         else:
             conn.commit()
-        logger.info('Create table {} for connection {}'.format(name, conn))
+        logger.info('Create all tables for database {}'.format(exchange))
+        conn.close()
 
     @staticmethod
     def connect(exchange, logger):
@@ -61,20 +54,30 @@ class SQLite:
         return result
 
     @staticmethod
-    def write(conn, cursor, pair, data):
-        print('Write date to DB:', cursor, pair, data)
-
-    # Обратите внимание, даже передавая одно значение - его нужно передавать кортежем!
-    # Именно по этому тут используется запятая в скобках!
-        new_artists = [
-            ('A Aagrh!',),
-            ('A Aagrh!-2',),
-            ('A Aagrh!-3',),
-        ]
-
-        try:
-            cursor.executemany("insert into Artist values (Null, ?);", new_artists)
-        except sqlite3.DatabaseError as err:
-            print("Error: ", err)
+    def insert(conn, cursor, table, data, logger):
+        """
+        :param table: where write
+        :param conn: Connection
+        :param cursor: Cursor
+        :param data: Structure with data from exchange
+        :return:
+        """
+        # print(data)
+        if table == 'symbols_details':
+            try:
+                cursor.executemany('insert into symbols_details values ('
+                                   ':pair, '
+                                   ':price_precision, '
+                                   ':initial_margin, '
+                                   ':minimum_margin, '
+                                   ':maximum_order_size, '
+                                   ':minimum_order_size, '
+                                   ':expiration);', data)
+            except sqlite3.DatabaseError as err:
+                logger.error('Error: {} insert table to {}'.format(err, table))
+                # sys.exit()
+            else:
+                conn.commit()
+            logger.info('Insert table {} for connection {}'.format(table, conn))
         else:
-            conn.commit()
+            logger.info('We have not information for table: {} and no write data.', table)
