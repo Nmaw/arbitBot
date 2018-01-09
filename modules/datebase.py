@@ -24,6 +24,8 @@ class SQLite:
 
         try:
             cursor.execute('CREATE TABLE IF NOT EXISTS symbols_details (pair text, price_precision real, initial_margin real, minimum_margin real, maximum_order_size real, minimum_order_size real, expiration text, PRIMARY KEY(pair ASC));')
+            cursor.execute('CREATE TABLE IF NOT EXISTS tickers (pair text, mid real, bid real, ask real, last_price real, low real, high real, volume real, timestamp real, PRIMARY KEY(timestamp ASC));')
+            cursor.execute('CREATE TABLE IF NOT EXISTS stats (pair text, period real, volume real, PRIMARY KEY(pair ASC));')
 
         except sqlite3.DatabaseError as err:
             logger.error('Error: {} create tables in database: {} '.format(err, dbfile))
@@ -56,8 +58,10 @@ class SQLite:
                 logger.error('Error: {} reading from table {}'.format(err, table))
             logger.info('Read table {} with cursor {}'.format(table, cursor))
             result = cursor.fetchall()
-            time.sleep(1)
+            # time.sleep(1)
             return result
+        elif table == 'tickers':
+            pass
         else:
             logger.info('We have not information for table: {} and no select data.', table)
 
@@ -70,7 +74,6 @@ class SQLite:
         :param data: Structure with data from exchange
         :return:
         """
-        # print(data)
         if table == 'symbols_details':
             try:
                 cursor.executemany('insert into symbols_details values ('
@@ -83,7 +86,33 @@ class SQLite:
                                    ':expiration);', data)
             except sqlite3.DatabaseError as err:
                 logger.error('Error: {} insert table to {}'.format(err, table))
-                # sys.exit()
+            else:
+                conn.commit()
+            logger.info('Insert table {} for connection {}'.format(table, conn))
+        elif table == 'tickers':
+            try:
+                cursor.executemany('insert into tickers values ('
+                                   ':pair, '
+                                   ':mid, '
+                                   ':bid, '
+                                   ':ask, '
+                                   ':last_price, '
+                                   ':low, '
+                                   ':high, '
+                                   ':volume, '
+                                   ':timestamp);', data)
+            except sqlite3.DatabaseError as err:
+                logger.error('Error: {} insert table to {}'.format(err, table))
+            else:
+                conn.commit()
+            logger.info('Insert table {} for connection {}'.format(table, conn))
+        elif table == 'stats':
+            try:
+                cursor.executemany('insert into stats values ('
+                                   ':period, '
+                                   ':volume);', data)
+            except sqlite3.DatabaseError as err:
+                logger.error('Error: {} insert table to {}'.format(err, table))
             else:
                 conn.commit()
             logger.info('Insert table {} for connection {}'.format(table, conn))

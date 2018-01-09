@@ -12,7 +12,7 @@ from modules.bitfinex_v2 import RESTClient
 
 
 def main():
-    global collect_symbols, collect_tickers
+    global collect_symbols, collect_tickers_stats
 
     # Load Config File
     config = ConfigParser()
@@ -76,7 +76,7 @@ def main():
         exch = RESTClient(loop)
 
         for dbname in keys.keys():
-            print(dbname)
+            # print(dbname)
 
             if conn is None:
                 conn, cursor = database.connect(dbname, logger)
@@ -90,14 +90,22 @@ def main():
                 # logger.debug(symbols)
                 # logger.debug(symbols_details)
 
-            async def collect_tickers(loop):
-                pairs = database.read(cursor, 'symbols', logger)
-                for pair in pairs:
+            async def collect_tickers_stats(loop):
+                tickers = []
+                stats = []
+                for pair in database.read(cursor, 'symbols', logger):
                     ticker = await exch.ticker(pair[0])
-                    # print(pair[0])
-                    print(ticker)
+                    ticker['pair'] = pair[0]
+                    tickers.append(ticker)
 
-                #TODO Add tickers
+                    stat = await exch.stats(pair[0])
+                    # print(stat[0])
+                    stat[0]['pair'] = pair[0]
+                    stats.append(stat)
+                # database.insert(conn, cursor, 'tickers', tickers, logger)
+                # database.insert(conn, cursor, 'stats', stats, logger)
+                logger.debug('Download tickers: {}', tickers)
+                logger.debug('Download stats: {}', stats)
 
         async def collect_fundingbook(loop):
             bitfinex = RESTClient(loop)
@@ -132,8 +140,7 @@ def main():
         # loop.run_until_complete(collect_trades(loop))
         # loop.run_until_complete(collect_orders(loop))
         loop.run_until_complete(collect_symbols(loop))
-        loop.run_until_complete(collect_tickers(loop))
-        # loop.run_until_complete(collect_stats(loop))
+        loop.run_until_complete(collect_tickers_stats(loop))
         # loop.run_until_complete(collect_fundingbook(loop))
         # loop.run_until_complete(collect_lends(loop))
         i += 1

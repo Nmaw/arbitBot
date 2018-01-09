@@ -12,7 +12,7 @@ from typing import Optional, List, Tuple
 
 # @author Julioocz/aiobitfinex with modification @Nmaw
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bitfinex.rest')
 
 
@@ -177,7 +177,7 @@ class RESTClient:
                 if 200 <= resp.status < 300:
                     return await resp.json()
                 else:
-                    print(resp.text())
+                    print(resp.json())
                     logger.warning('There was a problem processing {}, with status {}'.format(url, resp.status))
 
     async def ticker(self, symbol: str) -> dict:
@@ -188,6 +188,8 @@ class RESTClient:
         at the available symbols with the symbol method.
         :return:
         """
+        time.sleep(5)
+        #TODO Create new method for delay
         return await self._fetch(APIPath.TICKER.format(symbol))
 
     async def stats(self, symbol: str) -> dict:
@@ -198,6 +200,9 @@ class RESTClient:
         at the available symbols with the symbol method.
         :return: stats about the requested pair
         """
+        time.sleep(15)
+        #TODO Create new method for delay
+
         return await self._fetch((APIPath.STATS.format(symbol)))
 
     async def trades(self, symbol: str) -> List[dict]:
