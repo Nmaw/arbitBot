@@ -1,10 +1,9 @@
-#TODO Create db sqlite or mongo
 #TODO Write new informations about pairs and price
 #TODO Read informations for analytics price
 
 
 import sqlite3
-
+import time
 import sys
 
 
@@ -47,11 +46,20 @@ class SQLite:
         conn.close()
 
     @staticmethod
-    def read(cursor, pair, data):
-        print('Read data from DB:', cursor, pair, data)
-        cursor.execute("SELECT Name FROM Artist ORDER BY Name LIMIT 3")
-        result = cursor.fetchall()
-        return result
+    def read(cursor, table, logger):
+        # print('Read data from DB:', cursor, table)
+        if table == 'symbols':
+            request = 'SELECT pair FROM symbols_details ORDER BY pair;'
+            try:
+                cursor.execute(request)
+            except sqlite3.DatabaseError as err:
+                logger.error('Error: {} reading from table {}'.format(err, table))
+            logger.info('Read table {} with cursor {}'.format(table, cursor))
+            result = cursor.fetchall()
+            time.sleep(1)
+            return result
+        else:
+            logger.info('We have not information for table: {} and no select data.', table)
 
     @staticmethod
     def insert(conn, cursor, table, data, logger):

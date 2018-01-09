@@ -12,7 +12,7 @@ from modules.bitfinex_v2 import RESTClient
 
 
 def main():
-    global collect_symbols
+    global collect_symbols, collect_tickers
 
     # Load Config File
     config = ConfigParser()
@@ -88,9 +88,16 @@ def main():
                 database.insert(conn, cursor, 'symbols_details', symbols_details, logger)
 
                 # logger.debug(symbols)
-                logger.debug(symbols_details)
+                # logger.debug(symbols_details)
 
-            #TODO Add tickers
+            async def collect_tickers(loop):
+                pairs = database.read(cursor, 'symbols', logger)
+                for pair in pairs:
+                    ticker = await exch.ticker(pair[0])
+                    # print(pair[0])
+                    print(ticker)
+
+                #TODO Add tickers
 
         async def collect_fundingbook(loop):
             bitfinex = RESTClient(loop)
@@ -116,22 +123,16 @@ def main():
 
             # print(trades)
 
-        async def collect_tickers(loop):
-            bitfinex = RESTClient(loop)
-            ticker = await bitfinex.ticker('btcusd')
-
-            # print(ticker)
-
         async def collect_stats(loop):
             bitfinex = RESTClient(loop)
             stats = await bitfinex.stats('btcusd')
 
             # print(stats)
 
-        # loop.run_until_complete(collect_tickers(loop))
         # loop.run_until_complete(collect_trades(loop))
         # loop.run_until_complete(collect_orders(loop))
         loop.run_until_complete(collect_symbols(loop))
+        loop.run_until_complete(collect_tickers(loop))
         # loop.run_until_complete(collect_stats(loop))
         # loop.run_until_complete(collect_fundingbook(loop))
         # loop.run_until_complete(collect_lends(loop))
